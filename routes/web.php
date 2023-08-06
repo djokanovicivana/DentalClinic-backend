@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GranaController;
 use App\Http\Controllers\UslugaController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,3 +26,5 @@ Route::get('/', function () {
 Route::get('/home', [GranaController::class, 'index'])->name('grana.index');
 Route::get('/usluge/{idGrana}',[UslugaController::class, 'index'])->name('usluga.index');
 Route::get('/usluga/{idUsluga}',[UslugaController::class,'show'])->name('usluga.show');
+
+Route::post('/login',[AuthController::class,'login'])->name('auth.login');

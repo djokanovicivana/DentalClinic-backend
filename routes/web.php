@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\Route;
 */
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE, PATCH");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, X-Requested-With, Accept, Authorization");
+header("Access-Control-Allow-Credentials: true");
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,4 +30,5 @@ Route::get('/home', [GranaController::class, 'index'])->name('grana.index');
 Route::get('/usluge/{idGrana}',[UslugaController::class, 'index'])->name('usluga.index');
 Route::get('/usluga/{idUsluga}',[UslugaController::class,'show'])->name('usluga.show');
 
-Route::post('/login',[AuthController::class,'login'])->name('auth.login');
+
+Route::any('/login',[AuthController::class,'login'])->name('auth.login');

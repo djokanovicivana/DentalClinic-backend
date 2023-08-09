@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+
 
 class Korisnik extends Authenticatable implements AuthenticatableContract
 {
@@ -14,7 +16,7 @@ class Korisnik extends Authenticatable implements AuthenticatableContract
 
     protected $fillable = [
         'korisnickoIme',
-        'lozinka',
+        'password',
         'ime',
         'prezime',
         'brojTelefona',

@@ -40,7 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'korisnici',
         ],
+        'api' => [
+        'driver' => 'token',
+        'provider' => 'korisnici',
+        'hash' => false,
     ],
+],
 
     /*
     |--------------------------------------------------------------------------
@@ -60,7 +65,7 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'korisnici' => [
             'driver' => 'eloquent',
             'model' => App\Models\Korisnik::class,
         ],
@@ -87,7 +92,7 @@ return [
     */
 
     'passwords' => [
-        'users' => [
+        'korisnici' => [
             'provider' => 'korisnici',
             'table' => 'password_resets',
             'expire' => 60,

@@ -3,20 +3,28 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Korisnik;
 
 class AuthController extends Controller
 {
+    public function __construct()
+{
+      $this->middleware('auth:api', ['except' => ['login','register','logout','me','refresh']]);
+}
      public function login(Request $request)
 {
+    
     try {
         $validateUser = Validator::make($request->all(), [
             'korisnickoIme' => 'required',
-            'lozinka' => 'required'
+            'password' => 'required'
         ]);
 
         $customAttributes = [
             'korisnickoIme' => 'Korisničko ime',
-            'lozinka' => 'Lozinka',
+            'password'=>'Lozinka'
         ];
 
         $validateUser->setAttributeNames($customAttributes);
@@ -29,7 +37,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        if (!Auth::attempt($request->only(['korisnickoIme', 'lozinka']))) {
+        if (!Auth::attempt($request->only(['korisnickoIme', 'password']))) {
             return response()->json([
                 'status' => false,
                 'message' => 'Korisničko ime ili lozinka su pogrešni.',

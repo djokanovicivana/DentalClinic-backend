@@ -3,6 +3,7 @@
 use App\Http\Controllers\GranaController;
 use App\Http\Controllers\UslugaController;
 use App\Http\Controllers\AuthController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,10 +17,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE, PATCH");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, X-Requested-With, Accept, Authorization");
-header("Access-Control-Allow-Credentials: true");
-
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE, PATCH, ANY");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, X-Requested-With, Authorization"); // Dodajte 'Authorization' zaglavlje ako koristite autentifikaciju
 
 
 Route::get('/', function () {
@@ -29,6 +28,3 @@ Route::get('/', function () {
 Route::get('/home', [GranaController::class, 'index'])->name('grana.index');
 Route::get('/usluge/{idGrana}',[UslugaController::class, 'index'])->name('usluga.index');
 Route::get('/usluga/{idUsluga}',[UslugaController::class,'show'])->name('usluga.show');
-
-
-Route::any('/login',[AuthController::class,'login'])->name('auth.login');

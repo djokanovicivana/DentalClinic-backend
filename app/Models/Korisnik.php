@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 
 class Korisnik extends Authenticatable implements AuthenticatableContract
 {
-    use HasFactory;
+     use HasApiTokens, Notifiable;
       protected $table = 'korisnik'; // Ime tabele u bazi podataka
 
     protected $primaryKey = 'idKorisnik'; // Primarni ključ tabele
+      public $timestamps = false; 
 
     protected $fillable = [
         'korisnickoIme',

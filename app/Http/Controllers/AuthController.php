@@ -2,61 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Korisnik;
 
 class AuthController extends Controller
 {
-    public function __construct()
-{
-      $this->middleware('auth:api', ['except' => ['login','register','logout','me','refresh']]);
-}
-     public function login(Request $request)
-{
-    
-    try {
-        $validateUser = Validator::make($request->all(), [
-            'korisnickoIme' => 'required',
-            'password' => 'required'
-        ]);
+    public function login(Request $request)
+    {
+        try {
+            $validateUser = Validator::make($request->all(), [
+                'korisnickoIme' => 'required',
+                'password' => 'required'
+            ]);
 
-        $customAttributes = [
-            'korisnickoIme' => 'Korisničko ime',
-            'password'=>'Lozinka'
-        ];
+            if ($validateUser->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validaciona greška',
+                    'errors' => $validateUser->errors()
+                ], 401);
+            }
 
-        $validateUser->setAttributeNames($customAttributes);
+            $credentials = [
+                'korisnickoIme' => $request->korisnickoIme,
+                'password' => $request->password
+            ];
 
-        if ($validateUser->fails()) {
+            if (!Auth::attempt($credentials)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Pogrešno korisničko ime ili lozinka.',
+                ], 401);
+            }
+
+            $korisnik = Korisnik::where('korisnickoIme', $request->korisnickoIme)->first();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Uspešno ste se prijavili.',
+                'token' => $korisnik->createToken("API TOKEN")->plainTextToken,
+            ], 200);
+
+        } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Greška pri validaciji',
-                'errors' => $validateUser->errors()
-            ], 401);
+                'message' => $th->getMessage()
+            ], 500);
         }
-
-        if (!Auth::attempt($request->only(['korisnickoIme', 'password']))) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Korisničko ime ili lozinka su pogrešni.',
-            ], 401);
-        }
-
-        $korisnik = Korisnik::where('korisnickoIme', $request->korisnickoIme)->first();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Korisnik uspešno prijavljen',
-            'token' => $korisnik->createToken("API TOKEN")->plainTextToken
-        ], 200);
-
-    } catch (\Throwable $th) {
-        return response()->json([
-            'status' => false,
-            'message' => $th->getMessage()
-        ], 500);
     }
-}
 }

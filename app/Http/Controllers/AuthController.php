@@ -43,6 +43,8 @@ class AuthController extends Controller
                 'status' => true,
                 'message' => 'Uspešno ste se prijavili.',
                 'token' => $korisnik->createToken("API TOKEN")->plainTextToken,
+                'korisnikId'=>$korisnik->idKorisnik,
+                'korisnikUloga'=>$korisnik->uloga
             ], 200);
 
         } catch (\Throwable $th) {

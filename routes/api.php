@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KorisnikController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PregledController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,3 +25,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::post('/login',[AuthController::class,'login'])->name('auth.login');
 Route::post('/registracija',[KorisnikController::class,'create']);
+Route::patch('/noviPregled/{idKorisnikPacijent}/{idKorisnikDoktor}/{idTermin}',[PregledController::class,'noviPregled']);

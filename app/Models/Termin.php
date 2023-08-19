@@ -12,7 +12,7 @@ class Termin extends Model
 
     protected $primaryKey = 'idTermin'; 
 
-    protected $fillable = ['datumTermina', 'vremeTermina', 'prostorija', 'zakazan']; 
+    protected $fillable = ['datumTermina', 'vremeTermina', 'prostorija', 'zakazan','idKorisnik']; 
     public $timestamps = false;
 
 }

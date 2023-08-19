@@ -14,6 +14,7 @@ class Pregled extends Model
         'idTermin',
         'idKorisnikPacijent',
         'idKorisnikDoktor',
+        'idUsluga',
         'anamneza',
         'dijagnoza',
         'lecenje',

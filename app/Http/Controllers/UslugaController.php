@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Usluga;
+use App\Models\Grana;
+use App\Models\Doktor;
 
 class UslugaController extends Controller
 {
@@ -15,4 +17,20 @@ class UslugaController extends Controller
         $usluga=Usluga::where('idUsluga',$id)->get();
         return response()->json($usluga);
     }
+    public function uslugeZaDoktora($idDoktor)
+{
+    $usluge = Usluga::join('doktor', 'usluga.idGrana', '=', 'doktor.idGrana')
+    ->where('doktor.idKorisnik', $idDoktor)
+    ->select('usluga.nazivUsluga','usluga.idUsluga')
+    ->get();
+
+    return response()->json($usluge);
+}
+
+
+
+
+
+
+
 }

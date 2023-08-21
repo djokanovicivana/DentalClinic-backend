@@ -15,4 +15,5 @@ class PacijentController extends Controller
 
         return response()->json($pacijent);
     }
+    
 }

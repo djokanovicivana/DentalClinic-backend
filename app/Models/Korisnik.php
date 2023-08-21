@@ -14,7 +14,7 @@ class Korisnik extends Authenticatable implements AuthenticatableContract
      use HasApiTokens, Notifiable;
       protected $table = 'korisnik'; // Ime tabele u bazi podataka
 
-    protected $primaryKey = 'idKorisnik'; // Primarni ključ tabele
+      protected $primaryKey = 'idKorisnik'; // Primarni ključ tabele
       public $timestamps = false; 
 
     protected $fillable = [
@@ -25,6 +25,7 @@ class Korisnik extends Authenticatable implements AuthenticatableContract
         'brojTelefona',
         'email',
         'uloga',
+        'slika',
     ];
 
     public function doktor()

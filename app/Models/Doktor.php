@@ -8,7 +8,6 @@ class Doktor extends Model
 {
     protected $table = 'doktor';
     protected $primaryKey = 'idKorisnik';
-    protected $fillable=['slika'];
     public $timestamps = false; // Ukoliko ne želite timestamp kolone
 
     // Primer relacije sa korisnikom

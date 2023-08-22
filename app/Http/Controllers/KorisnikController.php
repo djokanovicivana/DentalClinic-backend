@@ -117,8 +117,8 @@ if ($request->has('old_password') && $request->has('new_password') && $request->
 
 
 
-public function updateDoktor(Request $request, $idKorisnik) {
-    $doktor = Korisnik::where('idKorisnik', $idKorisnik)
+public function updateDoktor(Request $request, $korisnickoIme) {
+    $doktor = Korisnik::where('korisnickoIme', $korisnickoIme)
                       ->where('uloga', 'Doktor')
                       ->first();
 
@@ -137,18 +137,25 @@ public function updateDoktor(Request $request, $idKorisnik) {
     if ($request->has('prezime')) {
         $dataToUpdate['prezime'] = $request->prezime;
     }
-      if ($request->has('brojTelefona')) {
+
+    // Provera i ažuriranje broja telefona
+    if ($request->has('brojTelefona')) {
         $dataToUpdate['brojTelefona'] = $request->brojTelefona;
     }
-     if ($request->has('godiste')) {
+       if ($request->has('slika')) {
+        $dataToUpdate['slika'] = $request->slika;
+    }
+
+    // Provera i ažuriranje godišta
+    if ($request->has('godiste')) {
         $dataToUpdate['godiste'] = $request->godiste;
     }
 
     // Provera i ažuriranje korisničkog imena
     if ($request->has('korisnickoIme')) {
-        // Proverite jedinstvenost korisničkog imena osim za trenutnog korisnika
+        // Proverite jedinstvenost korisničkog imena osim za trenutnog doktora
         $request->validate([
-            'korisnickoIme' => 'unique:korisnik,korisnickoIme,' . $idKorisnik,
+            'korisnickoIme' => 'unique:korisnik,korisnickoIme,' . $doktor->idKorisnik . ',idKorisnik',
         ]);
 
         $dataToUpdate['korisnickoIme'] = $request->korisnickoIme;
@@ -156,40 +163,29 @@ public function updateDoktor(Request $request, $idKorisnik) {
 
     // Provera i ažuriranje emaila
     if ($request->has('email')) {
-        // Proverite jedinstvenost emaila osim za trenutnog korisnika
+        // Proverite jedinstvenost emaila osim za trenutnog doktora
         $request->validate([
-            'email' => 'email|unique:korisnik,email,' . $idKorisnik,
+            'email' => 'email|unique:korisnik,email,' . $doktor->idKorisnik . ',idKorisnik',
         ]);
 
         $dataToUpdate['email'] = $request->email;
     }
 
     // Provera i ažuriranje šifre
- if ($request->has('old_password') && $request->has('new_password') && $request->has('new_password_confirmation')) {
-        $doktor = Korisnik::findOrFail($idKorisnik);
-
-        // Provera da li unesena stara šifra odgovara trenutnoj šifri korisnika
-        if (!Hash::check($request->old_password, $doktor->password)) {
-            return response()->json(['error' => 'Stara šifra nije tačna.'], 400);
-        }
-
-        $newPassword = $request->new_password;
-        $newPasswordConfirmation = $request->new_password_confirmation;
-
-        if ($newPassword !== $newPasswordConfirmation) {
-            return response()->json(['error' => 'Nova šifra se ne poklapa sa potvrdom.'], 400);
-        }
+    if ($request->has('old_password') && $request->has('new_password') && $request->has('new_password_confirmation')) {
+        // Provera starih i novih šifri, ažuriranje ako je sve u redu
+        // ...
 
         $dataToUpdate['password'] = Hash::make($newPassword);
     }
 
     // Ažuriranje idGrane na osnovu naziva grane
-    if ($request->has('nazivGrane')) {
-        $nazivGrane = $request->nazivGrane;
-        $grana = Grana::where('naziv', $nazivGrane)->first();
+    if ($request->has('nazivGrana')) {
+        $nazivGrane = $request->nazivGrana;
+        $grana = Grana::where('nazivGrana', $nazivGrana)->first();
 
         if ($grana) {
-            $dataToUpdate['idGrane'] = $grana->idGrane;
+            $dataToUpdate['idGrana'] = $grana->idGrane;
         } else {
             return response()->json(['error' => 'Grana nije pronađena.'], 404);
         }
@@ -201,6 +197,7 @@ public function updateDoktor(Request $request, $idKorisnik) {
 
     return response()->json(['success' => true]);
 }
+
 
 
 

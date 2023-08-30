@@ -21,4 +21,10 @@ class Doktor extends Model
     {
         return $this->belongsTo(Grana::class, 'idGrana', 'idGrana');
     }
+
+    // Primer relacije sa terminima
+    public function termini()
+    {
+        return $this->hasMany(Termin::class, 'idKorisnik', 'idKorisnik');
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Pacijent;
 use App\Models\Korisnik;
+use App\Models\Pregled;
 use Illuminate\Http\Request;
 
 class PacijentController extends Controller
@@ -15,5 +16,25 @@ class PacijentController extends Controller
 
         return response()->json($pacijent);
     }
-    
+   public function pacijentiDoktor(Request $request, $doktorId)
+    {
+        $searchTerm = $request->input('searchTerm');
+
+        $query = Pacijent::join('pregled', 'pacijent.idKorisnik', '=', 'pregled.idKorisnikPacijent')
+            ->join('korisnik', 'pacijent.idKorisnik', '=', 'korisnik.idKorisnik')
+            ->where('pregled.idKorisnikDoktor', $doktorId)
+            ->select('pacijent.brojKartona', 'korisnik.*')
+            ->distinct();
+
+        if ($searchTerm) {
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('korisnik.ime', 'LIKE', '%' . $searchTerm . '%')
+                      ->orWhere('korisnik.prezime', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        $pacijenti = $query->get();
+
+        return response()->json($pacijenti);
+    }
 }

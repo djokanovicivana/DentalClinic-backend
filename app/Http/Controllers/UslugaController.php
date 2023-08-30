@@ -26,6 +26,20 @@ class UslugaController extends Controller
 
     return response()->json($usluge);
 }
+public function uslugaIdTermina($idTermin) {
+    $pregled = Pregled::join('usluga', 'pregled.idUsluga', '=', 'usluga.idUsluga')
+        ->where('pregled.idTermin', $idTermin)
+        ->first();
+
+    if (!$pregled) {
+        return null; 
+    }
+
+    return [
+        'idUsluga' => $pregled->idUsluga,
+        'nazivUsluga' => $pregled->nazivUsluga
+    ];
+}
 
 
 

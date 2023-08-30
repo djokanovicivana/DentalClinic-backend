@@ -33,13 +33,19 @@ Route::get('/home', [GranaController::class, 'index'])->name('grana.index');
 Route::get('/usluge/{idGrana}',[UslugaController::class, 'index'])->name('usluga.index');
 Route::get('/usluga/{idUsluga}',[UslugaController::class,'show'])->name('usluga.show');
 Route::get('/uslugeDoktor/{idDoktor}',[UslugaController::class,'uslugeZaDoktora']);
+Route::get('/uslugaTermin/{idTermina}',[UslugaController::class,'uslugaIdTermina']);
 
-Route::get('/pacijenti/{idDoktor}',[PregledController::class,'pacijentiDoktor']);
+Route::get('/pacijenti/{idDoktor}',[PacijentController::class,'pacijentiDoktor']);
 Route::get('/pacijent/{idPacijent}',[PacijentController::class,'pacijentId']);
+
 Route::get('/terminiZavrseni/{idPacijent}/{idDoktor}',[TerminController::class,'terminiPacijentZavrseni']);
 Route::get('/terminiBuduci/{idPacijent}/{idDoktor}',[TerminController::class,'terminiPacijentBuduci']);
 Route::get('/termin/{terminId}',[TerminController::class,'terminId']);
+Route::get('/terminiDoktor/{idDoktora}',[TerminController::class,'getTerminiZaDoktora']);
+
 Route::get('/pregled/{pregledId}',[PregledController::class,'pregledId']);
+Route::get('/pregledTermin/{idTermin}',[PregledController::class,'pregledIdTermin']);
 Route::get('/terminiZakazani/{idDoktor}/{idPacijent}',[TerminController::class,'terminiZakazani']);
+Route::get('/pretrazivanjeTermina',[TerminController::class,'pretrazivanjeTermina']);
 
 Route::get('/doktor/{idDoktor}',[DoktorController::class,'show']);

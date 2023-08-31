@@ -71,57 +71,60 @@ public function getTerminiZaDoktora($idDoktora)
 }
 public function pretrazivanjeTermina(Request $request) {
     $query = Termin::query();
+    $pocetniDatum = $request->input('pocetniDatum');
+    $krajnjiDatum = $request->input('krajnjiDatum');
+    $pocetnoVreme = $request->input('pocetnoVreme');
+    $krajnjeVreme = $request->input('krajnjeVreme');
+    $doktor = $request->input('doktor');
+    $usluga=$request->input('usluga');
 
-    if ($request->has('pocetniDatum') && $request->has('krajnjiDatum')) {
-        $pocetniDatum = $request->input('pocetniDatum');
-        $krajnjiDatum = $request->input('krajnjiDatum');
-
+    if ($pocetniDatum && $krajnjiDatum) {
         $query->whereBetween('datumTermina', [$pocetniDatum, $krajnjiDatum]);
-    } elseif ($request->has('pocetniDatum')) {
-        $pocetniDatum = $request->input('pocetniDatum');
-
+    } elseif ($pocetniDatum && !$krajnjiDatum) {
         $query->where('datumTermina', '>=', $pocetniDatum);
-    } elseif ($request->has('krajnjiDatum')) {
-        $krajnjiDatum = $request->input('krajnjiDatum');
-
+    } elseif ($krajnjiDatum && !$pocetniDatum) {
         $query->where('datumTermina', '<=', $krajnjiDatum);
     }
 
-    if ($request->has('pocetnoVreme') && $request->has('krajnjeVreme')) {
-        $pocetnoVreme = $request->input('pocetnoVreme');
-        $krajnjeVreme = $request->input('krajnjeVreme');
-
+    if ($pocetnoVreme && $krajnjeVreme) {
         $query->where(function ($query) use ($pocetnoVreme, $krajnjeVreme) {
-            $query->where('vremeTermina', '>=', $pocetnoVreme)
-                  ->where('vremeTermina', '<=', $krajnjeVreme);
+            $query->whereTime('vremeTermina', '>=', $pocetnoVreme)
+                  ->whereTime('vremeTermina', '<=', $krajnjeVreme);
         });
-    }
-     if ($request->has('doktor') && !$request->has('usluga')) {
-        $doktor = $request->input('doktor');
+    }elseif ($pocetnoVreme && !$krajnjeVreme)
+    {
+        $query->where(function ($query) use ($pocetnoVreme, $krajnjeVreme) {
+            $query->where('vremeTermina', '>=', $pocetnoVreme);
+    });}
+    elseif (!$pocetnoVreme && $krajnjeVreme)
+    {
+        $query->where(function ($query) use ($pocetnoVreme, $krajnjeVreme) {
+            $query->where('vremeTermina', '<=', $krajnjeVreme);
+    });}
+     if ($doktor && !$usluga) { 
         $query->join('korisnik', 'korisnik.idKorisnik', '=', 'termin.idKorisnik')
             ->where(function ($subquery) use ($doktor) {
                 $subquery->where('korisnik.ime', 'like', '%' . $doktor . '%')
                     ->orWhere('korisnik.prezime', 'like', '%' . $doktor . '%');
             });
     }
+    if (!$doktor && $usluga) {
+    $query->join('doktor', 'doktor.idKorisnik', '=', 'termin.idKorisnik')
+          ->join('usluga', 'usluga.idGrana','=','doktor.idGrana')
+          ->where('usluga.nazivUsluga', '=', $usluga);
+   }if ($doktor && $usluga) { 
+    $query->leftJoin('doktor', 'doktor.idKorisnik', '=', 'termin.idKorisnik')
+          ->leftJoin('usluga', 'usluga.idGrana','=','doktor.idGrana')
+          ->where('usluga.nazivUsluga', '=', $usluga)
+          ->where(function ($subquery) use ($doktor) {
+              $subquery->where('korisnik.ime', 'like', '%' . $doktor . '%')
+                  ->orWhere('korisnik.prezime', 'like', '%' . $doktor . '%');
+          })
+          ->whereNotNull('usluga.idGrana');
+}
+
     
-if ($request->has('doktor') && $request->has('usluga')) {
-    $doktor = $request->input('doktor');
-    $nazivUsluge = $request->input('usluga');
 
-    $query->join('korisnik', 'korisnik.idKorisnik', '=', 'termin.idKorisnik')
-        ->join('usluga', 'usluga.idGrana', '=', 'korisnik.idGrana')
-        ->where(function ($subquery) use ($doktor) {
-            $subquery->where('korisnik.ime', 'like', '%' . $doktor . '%')
-                ->orWhere('korisnik.prezime', 'like', '%' . $doktor . '%');
-        })
-        ->where('usluga.nazivUsluga', 'like', '%' . $nazivUsluge . '%');
-
-    $count = $query->count();
-
-    if ($count === 0) {
-        return response()->json(['message' => 'Izabrani doktor ne obavlja izabranu uslugu'], 400);
-    }
     
     $termini = $query->get();
 
@@ -129,4 +132,4 @@ if ($request->has('doktor') && $request->has('usluga')) {
 }
 
 
-}}
+}

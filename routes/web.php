@@ -34,6 +34,7 @@ Route::get('/usluge/{idGrana}',[UslugaController::class, 'index'])->name('usluga
 Route::get('/usluga/{idUsluga}',[UslugaController::class,'show'])->name('usluga.show');
 Route::get('/uslugeDoktor/{idDoktor}',[UslugaController::class,'uslugeZaDoktora']);
 Route::get('/uslugaTermin/{idTermina}',[UslugaController::class,'uslugaIdTermina']);
+Route::get('/sveUsluge',[UslugaController::class,'sveUsluge']);
 
 Route::get('/pacijenti/{idDoktor}',[PacijentController::class,'pacijentiDoktor']);
 Route::get('/pacijent/{idPacijent}',[PacijentController::class,'pacijentId']);

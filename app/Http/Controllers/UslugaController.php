@@ -40,6 +40,10 @@ public function uslugaIdTermina($idTermin) {
         'nazivUsluga' => $pregled->nazivUsluga
     ];
 }
+public function sveUsluge(){
+    $usluge = Usluga::all('nazivUsluga');
+    return response()->json($usluge);
+}
 
 
 

@@ -101,32 +101,30 @@ public function pretrazivanjeTermina(Request $request) {
         $query->where(function ($query) use ($pocetnoVreme, $krajnjeVreme) {
             $query->where('vremeTermina', '<=', $krajnjeVreme);
     });}
-     if ($doktor && !$usluga) { 
-        $query->join('korisnik', 'korisnik.idKorisnik', '=', 'termin.idKorisnik')
-            ->where(function ($subquery) use ($doktor) {
-                $subquery->where('korisnik.ime', 'like', '%' . $doktor . '%')
-                    ->orWhere('korisnik.prezime', 'like', '%' . $doktor . '%');
-            });
-    }
-    if (!$doktor && $usluga) {
+$termini = $query->join('korisnik as doktor', 'doktor.idKorisnik', '=', 'termin.idKorisnik')
+    ->where(function ($subquery) use ($doktor) {
+        $subquery->where('doktor.ime', 'LIKE', '%' . $doktor . '%')
+            ->orWhere('doktor.prezime', 'LIKE', '%' . $doktor . '%');
+    })
+    ->groupBy('doktor.ime', 'doktor.prezime')
+    ->get();
+
+
+    if ($usluga) {
     $query->join('doktor', 'doktor.idKorisnik', '=', 'termin.idKorisnik')
           ->join('usluga', 'usluga.idGrana','=','doktor.idGrana')
           ->where('usluga.nazivUsluga', '=', $usluga);
-   }if ($doktor && $usluga) { 
-    $query->leftJoin('doktor', 'doktor.idKorisnik', '=', 'termin.idKorisnik')
-          ->leftJoin('usluga', 'usluga.idGrana','=','doktor.idGrana')
-          ->where('usluga.nazivUsluga', '=', $usluga)
-          ->where(function ($subquery) use ($doktor) {
-              $subquery->where('korisnik.ime', 'like', '%' . $doktor . '%')
-                  ->orWhere('korisnik.prezime', 'like', '%' . $doktor . '%');
-          })
-          ->whereNotNull('usluga.idGrana');
-}
+   }
 
     
 
     
-    $termini = $query->get();
+$termini = $query->join('korisnik', 'korisnik.idKorisnik', '=', 'termin.idKorisnik')
+    ->select('korisnik.ime', 'korisnik.prezime', 'korisnik.slika', 'korisnik.idKorisnik', Termin::raw('GROUP_CONCAT(CONCAT(termin.idTermin, " ", termin.datumTermina, " ", termin.vremeTermina," ",termin.zakazan)) as termini'))
+    ->groupBy('korisnik.ime', 'korisnik.prezime', 'korisnik.slika')
+    ->get();
+
+
 
     return response()->json($termini);
 }

@@ -1,9 +1,11 @@
 <?php
 namespace App\Http\Controllers;
+use Exception;
 use App\Models\Pacijent;
 use App\Models\Pregled;
 use App\Models\Korisnik;
 use App\Models\Usluga;
+use App\Models\Termin;
 use Illuminate\Http\Request;
 
 
@@ -44,5 +46,30 @@ public function pregledIdTermin($idTermin){
     return response()->json($informacije);
 }
 
-    
+use Exception;
+
+public function zakaziPregled($idTermin, $idKorisnikDoktor, $idKorisnikPacijent, $nazivUsluga){
+    try {
+        $pregled = new Pregled();
+        $idUsluga = Usluga::where('nazivUsluga', $nazivUsluga)->firstOrFail();
+        
+        $pregled->id_termin = $idTermin;
+        $pregled->id_korisnik_doktor = $idKorisnikDoktor;
+        $pregled->id_korisnik_pacijent = $idKorisnikPacijent;
+        $pregled->id_usluga = $idUsluga->id; // Koristite "id" iznad za atribut "id_usluga"
+        $pregled->obavljen = 0; 
+       
+        $pregled->save();
+        
+        // Označavanje termina kao zakazanog
+        Termin::where('idTermin', $idTermin)->update(['zakazan' => 1]);
+
+        // Vratite odgovor o uspehu ako je sve u redu
+        return response()->json(['success' => true, 'message' => 'Pregled je uspešno zakazan.']);
+    } catch (Exception $e) {
+        // Uhvatite izuzetak i vratite odgovor o grešci
+        return response()->json(['success' => false, 'message' => 'Došlo je do greške prilikom zakazivanja pregleda.', 'error' => $e->getMessage()]);
+    }
+}
+
 }

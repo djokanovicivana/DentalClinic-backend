@@ -28,3 +28,4 @@ Route::post('/registracija',[KorisnikController::class,'create']);
 Route::patch('/noviPregled/{idKorisnikPacijent}/{idKorisnikDoktor}/{idTermin}',[PregledController::class,'noviPregled']);
 Route::patch('/izmenaPacijenta/{korisnickoIme}',[KorisnikController::class,'updatePacijent']);
 Route::patch('/izmenaDoktora/{korisnickoIme}',[KorisnikController::class,'updateDoktor']);
+Route::post('/zakaziPregled',[PregledController::class,'zakaziPregled']);

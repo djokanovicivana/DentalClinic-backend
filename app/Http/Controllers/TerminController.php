@@ -69,65 +69,61 @@ public function getTerminiZaDoktora($idDoktora)
     $termini = Termin::where('idKorisnik', $idDoktora)->get();
     return response()->json($termini);
 }
-public function pretrazivanjeTermina(Request $request) {
-    $query = Termin::query();
-    $pocetniDatum = $request->input('pocetniDatum');
-    $krajnjiDatum = $request->input('krajnjiDatum');
-    $pocetnoVreme = $request->input('pocetnoVreme');
-    $krajnjeVreme = $request->input('krajnjeVreme');
-    $doktor = $request->input('doktor');
-    $usluga=$request->input('usluga');
+ public function pretrazivanjeTermina(Request $request)
+    { 
+          $pocetniDatum = $request->input('pocetniDatum') ?? null;
+        $krajnjiDatum = $request->input('krajnjiDatum') ?? null;
+        $pocetnoVreme = $request->input('pocetnoVreme') ?? null;
+        $krajnjeVreme = $request->input('krajnjeVreme') ?? null;
+        $doktor = $request->input('doktor') ?? null;
+        $usluga = $request->input('usluga') ?? null;
+        if (!$pocetniDatum && !$krajnjiDatum && !$pocetnoVreme && !$krajnjeVreme && !$doktor && !$usluga) {
 
-    if ($pocetniDatum && $krajnjiDatum) {
-        $query->whereBetween('datumTermina', [$pocetniDatum, $krajnjiDatum]);
-    } elseif ($pocetniDatum && !$krajnjiDatum) {
-        $query->where('datumTermina', '>=', $pocetniDatum);
-    } elseif ($krajnjiDatum && !$pocetniDatum) {
-        $query->where('datumTermina', '<=', $krajnjiDatum);
+        // Ako nema kriterijuma pretrage, nema potrebe za dodatnim uslovima
+        $termini = Termin::join('korisnik', 'korisnik.idKorisnik', '=', 'termin.idKorisnik')
+            ->select('korisnik.ime', 'korisnik.prezime', 'korisnik.slika', 'korisnik.idKorisnik', Termin::raw('GROUP_CONCAT(CONCAT(termin.idTermin, " ", termin.datumTermina, " ", termin.vremeTermina," ",termin.zakazan)) as termini'))
+            ->groupBy('korisnik.ime', 'korisnik.prezime', 'korisnik.slika')
+            ->get();
+    } else {
+         
+        $query = Termin::query();
+
+        if ($pocetniDatum) {
+            $query->where('datumTermina', '>=', $pocetniDatum);
+        }
+        if ($krajnjiDatum) {
+            $query->where('datumTermina', '<=', $krajnjiDatum);
+        }
+        if ($pocetnoVreme) {
+            $query->whereTime('vremeTermina', '>=', $pocetnoVreme);
+        }
+        if ($krajnjeVreme) {
+            $query->whereTime('vremeTermina', '<=', $krajnjeVreme);
+        }
+        if ($doktor) {
+            $query->where(function ($subquery) use ($doktor) {
+                $subquery->where('ime', 'LIKE', '%' . $doktor . '%')
+                    ->orWhere('prezime', 'LIKE', '%' . $doktor . '%');
+            });
+        }
+        
+        // Dodajte uslov za uslugu ako je dostupna
+        if ($usluga) {
+            $query->join('doktor', 'doktor.idKorisnik', '=', 'termin.idKorisnik')
+                  ->join('usluga', 'usluga.idGrana', '=', 'doktor.idGrana')
+                  ->where('usluga.nazivUsluga', '=', $usluga);
+        }
+
+        // Dohvatite podatke iz baze
+        $termini = $query->select('korisnik.ime', 'korisnik.prezime', 'korisnik.slika', 'korisnik.idKorisnik', Termin::raw('GROUP_CONCAT(CONCAT(termin.idTermin, " ", termin.datumTermina, " ", termin.vremeTermina," ",termin.zakazan)) as termini'))
+            ->join('korisnik', 'korisnik.idKorisnik', '=', 'termin.idKorisnik')
+            ->groupBy('korisnik.ime', 'korisnik.prezime', 'korisnik.slika')
+            ->get();
     }
-
-    if ($pocetnoVreme && $krajnjeVreme) {
-        $query->where(function ($query) use ($pocetnoVreme, $krajnjeVreme) {
-            $query->whereTime('vremeTermina', '>=', $pocetnoVreme)
-                  ->whereTime('vremeTermina', '<=', $krajnjeVreme);
-        });
-    }elseif ($pocetnoVreme && !$krajnjeVreme)
-    {
-        $query->where(function ($query) use ($pocetnoVreme, $krajnjeVreme) {
-            $query->where('vremeTermina', '>=', $pocetnoVreme);
-    });}
-    elseif (!$pocetnoVreme && $krajnjeVreme)
-    {
-        $query->where(function ($query) use ($pocetnoVreme, $krajnjeVreme) {
-            $query->where('vremeTermina', '<=', $krajnjeVreme);
-    });}
-$termini = $query->join('korisnik as doktor', 'doktor.idKorisnik', '=', 'termin.idKorisnik')
-    ->where(function ($subquery) use ($doktor) {
-        $subquery->where('doktor.ime', 'LIKE', '%' . $doktor . '%')
-            ->orWhere('doktor.prezime', 'LIKE', '%' . $doktor . '%');
-    })
-    ->groupBy('doktor.ime', 'doktor.prezime')
-    ->get();
-
-
-    if ($usluga) {
-    $query->join('doktor', 'doktor.idKorisnik', '=', 'termin.idKorisnik')
-          ->join('usluga', 'usluga.idGrana','=','doktor.idGrana')
-          ->where('usluga.nazivUsluga', '=', $usluga);
-   }
-
+        return response()->json($termini);
+    }
     
 
-    
-$termini = $query->join('korisnik', 'korisnik.idKorisnik', '=', 'termin.idKorisnik')
-    ->select('korisnik.ime', 'korisnik.prezime', 'korisnik.slika', 'korisnik.idKorisnik', Termin::raw('GROUP_CONCAT(CONCAT(termin.idTermin, " ", termin.datumTermina, " ", termin.vremeTermina," ",termin.zakazan)) as termini'))
-    ->groupBy('korisnik.ime', 'korisnik.prezime', 'korisnik.slika')
-    ->get();
-
-
-
-    return response()->json($termini);
-}
 
 
 }

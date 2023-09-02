@@ -19,6 +19,7 @@ use App\Http\Controllers\PregledController;
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE, PATCH, ANY");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, X-Requested-With, Authorization"); 
+header("Cache-Control: no-cache,no-store");
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

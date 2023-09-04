@@ -64,15 +64,151 @@ public function zakaziPregled(Request $request){
        
         $pregled->save();
         
-        // Označavanje termina kao zakazanog
         Termin::where('idTermin', $request->input('idTermin'))->update(['zakazan' => 1]);
 
-        // Vratite odgovor o uspehu ako je sve u redu
+
       return response()->json(['idUsluga' => $idUsluga]);
     } catch (\Exception $e) {
-        // Uhvatite izuzetak i vratite odgovor o grešci
+
         return response()->json(['success' => false, 'message' => 'Došlo je do greške prilikom zakazivanja pregleda.', 'error' => $e->getMessage()]);
     }
 }
+
+    public function obavljeniPreglediDoktor( $idDoktora, $nazivUsluge)
+    {
+            $pregledi=Pregled::join('usluga','pregled.idUsluga','=','usluga.idUsluga')
+            ->where('usluga.nazivUsluga',$nazivUsluge)
+            ->join('termin','termin.idTermin','=','pregled.idTermin')
+            ->join('doktor','doktor.idKorisnik','=','pregled.idKorisnikDoktor')
+            ->where('doktor.idKorisnik',$idDoktora)
+            ->where('pregled.obavljen',1)
+            ->join('korisnik','korisnik.idKorisnik','=','pregled.idKorisnikPacijent')
+            ->select('korisnik.ime','korisnik.prezime','termin.datumTermina','termin.vremeTermina', 'usluga.nazivUsluga')
+             ->orderBy('termin.datumTermina', 'asc')
+             ->orderBy('termin.vremeTermina', 'asc')
+             ->get();
+
+        $brojPregleda = $pregledi->count();
+
+        return [
+            'brojPregleda' => $brojPregleda,
+            'pregledi' => $pregledi,
+        ];
+    }
+     public function brojObavljeniDoktor($idDoktora)
+    {
+        return Pregled::where('idKorisnikDoktor', $idDoktora)
+            ->where('obavljen', 1) // Samo obavljeni pregledi
+            ->count();
+    }
+    public function predstojeciPreglediDoktor($idDoktora, $nazivUsluge)
+{
+    $pregledi = Pregled::join('usluga', 'pregled.idUsluga', '=', 'usluga.idUsluga')
+        ->where('usluga.nazivUsluga', $nazivUsluge)
+        ->join('termin', 'termin.idTermin', '=', 'pregled.idTermin')
+        ->join('doktor', 'doktor.idKorisnik', '=', 'pregled.idKorisnikDoktor')
+        ->where('doktor.idKorisnik', $idDoktora)
+        ->where(function ($query) {
+            $query->where('pregled.obavljen', 0) // Samo nepregledani pregledi
+                  ->where(function ($query) {
+            $query->where('termin.datumTermina', '>', now()) // Samo termini u budućnosti
+                ->orWhere(function ($query) {
+                    $query->where('termin.datumTermina', now())
+                          ->where('termin.vremeTermina', '>=', now());
+                });
+                  });
+        })
+        ->join('korisnik', 'korisnik.idKorisnik', '=', 'pregled.idKorisnikPacijent')
+        ->select(
+            'korisnik.ime',
+            'korisnik.prezime',
+            'termin.datumTermina',
+            'termin.vremeTermina',
+            'usluga.nazivUsluga'
+        )
+        ->orderBy('termin.datumTermina', 'asc')
+        ->orderBy('termin.vremeTermina', 'asc')
+        ->get();
+
+    $brojPregleda = $pregledi->count();
+
+    return [
+        'brojPregleda' => $brojPregleda,
+        'pregledi' => $pregledi,
+    ];
+}
+public function obavljeniPreglediPacijent($idPacijenta, $nazivUsluge)
+{
+    $pregledi = Pregled::join('usluga', 'pregled.idUsluga', '=', 'usluga.idUsluga')
+        ->where('pregled.idKorisnikPacijent', $idPacijenta)
+        ->where('pregled.obavljen', 1)
+        ->where('usluga.nazivUsluga', $nazivUsluge)
+        ->join('termin', 'termin.idTermin', '=', 'pregled.idTermin')
+        ->join('korisnik', 'korisnik.idKorisnik', '=', 'pregled.idKorisnikDoktor')
+        ->select(
+            'korisnik.ime',
+            'korisnik.prezime',
+            'termin.datumTermina',
+            'termin.vremeTermina',
+            'usluga.nazivUsluga'
+        )
+        ->orderBy('termin.datumTermina', 'asc')
+        ->orderBy('termin.vremeTermina', 'asc')
+        ->get();
+
+    $brojPregleda = $pregledi->count();
+
+    return [
+        'brojPregleda' => $brojPregleda,
+        'pregledi' => $pregledi,
+    ];
+}
+
+public function brojObavljenihPacijent($idPacijenta)
+{
+    return Pregled::join('usluga', 'pregled.idUsluga', '=', 'usluga.idUsluga')
+        ->where('pregled.idKorisnikPacijent', $idPacijenta)
+        ->where('pregled.obavljen', 1)
+        ->count();
+}
+
+public function predstojeciPreglediPacijent($idPacijenta, $nazivUsluge)
+{
+    $pregledi = Pregled::join('usluga', 'pregled.idUsluga', '=', 'usluga.idUsluga')
+        ->where('usluga.nazivUsluga', $nazivUsluge)
+        ->where('pregled.idKorisnikPacijent', $idPacijenta)
+        ->join('termin','termin.idTermin','=','pregled.idTermin')
+        ->where(function ($query) {
+            $query->where('pregled.obavljen', 0)
+            ->where(function ($query) {
+            $query->where('termin.datumTermina', '>', now()) // Samo termini u budućnosti
+                ->orWhere(function ($query) {
+                    $query->where('termin.datumTermina', now())
+                          ->where('termin.vremeTermina', '>=', now());
+                });
+                });
+        })
+        ->join('korisnik', 'korisnik.idKorisnik', '=', 'pregled.idKorisnikDoktor')
+        ->select(
+            'korisnik.ime',
+            'korisnik.prezime',
+            'termin.datumTermina',
+            'termin.vremeTermina',
+            'usluga.nazivUsluga'
+        )
+        ->orderBy('termin.datumTermina', 'asc')
+        ->orderBy('termin.vremeTermina', 'asc')
+        ->get();
+
+    $brojPregleda = $pregledi->count();
+
+    return [
+        'brojPregleda' => $brojPregleda,
+        'pregledi' => $pregledi,
+    ];
+}
+
+
+    
 
 }

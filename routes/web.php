@@ -48,5 +48,10 @@ Route::get('/pregled/{pregledId}',[PregledController::class,'pregledId']);
 Route::get('/pregledTermin/{idTermin}',[PregledController::class,'pregledIdTermin']);
 Route::get('/terminiZakazani/{idDoktor}/{idPacijent}',[TerminController::class,'terminiZakazani']);
 Route::get('/pretrazivanjeTermina',[TerminController::class,'pretrazivanjeTermina']);
-
+Route::get('/obavljeniPreglediDoktor/{idDoktora}/{nazivUsluga}',[PregledController::class,'obavljeniPreglediDoktor']);
+Route::get('/obavljeniPreglediPacijent/{idPacijenta}/{nazivUsluga}',[PregledController::class,'obavljeniPreglediPacijent']);
+Route::get('/predstojeciPreglediDoktor/{idDoktora}/{nazivUsluga}',[PregledController::class,'predstojeciPreglediDoktor']);
+Route::get('/predstojeciPreglediPacijent/{idPacijenta}/{nazivUsluga}',[PregledController::class,'predstojeciPreglediPacijent']);
+Route::get('/brojObavljeniDoktor/{idDoktora}',[PregledController::class,'brojObavljeniDoktor']);
+Route::get('/brojObavljenihPacijent/{idPacijenta}',[PregledController::class,'brojObavljenihPacijent']);
 Route::get('/doktor/{idDoktor}',[DoktorController::class,'show']);

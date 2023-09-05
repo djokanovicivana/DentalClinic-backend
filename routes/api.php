@@ -30,3 +30,4 @@ Route::patch('/noviPregled/{idKorisnikPacijent}/{idKorisnikDoktor}/{idTermin}',[
 Route::patch('/izmenaPacijenta/{korisnickoIme}',[KorisnikController::class,'updatePacijent']);
 Route::patch('/izmenaDoktora/{korisnickoIme}',[KorisnikController::class,'updateDoktor']);
 Route::post('/zakaziPregled',[PregledController::class,'zakaziPregled']);
+Route::post('/otkaziPregled/{idPregleda}',[PregledController::class,'otkaziPregled']);

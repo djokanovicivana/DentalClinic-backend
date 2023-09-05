@@ -66,9 +66,17 @@ public function terminiZakazani($idDoktor, $idPacijent) {
 }
 public function getTerminiZaDoktora($idDoktora)
 {
-    $termini = Termin::where('idKorisnik', $idDoktora)->get();
+    $termini = Termin::where('idKorisnik', $idDoktora)
+        ->leftJoin('pregled', function ($join) {
+            $join->on('pregled.idTermin', '=', 'termin.idTermin');
+        })
+        ->select('termin.*', 'pregled.idPregled')
+         ->distinct()
+        ->get();
+
     return response()->json($termini);
 }
+
  public function pretrazivanjeTermina(Request $request)
     { 
           $pocetniDatum = $request->input('pocetniDatum') ?? null;

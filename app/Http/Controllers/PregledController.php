@@ -83,7 +83,7 @@ public function zakaziPregled(Request $request){
             ->where('doktor.idKorisnik',$idDoktora)
             ->where('pregled.obavljen',1)
             ->join('korisnik','korisnik.idKorisnik','=','pregled.idKorisnikPacijent')
-            ->select('korisnik.ime','korisnik.prezime','termin.datumTermina','termin.vremeTermina', 'usluga.nazivUsluga')
+            ->select('korisnik.ime','korisnik.prezime','termin.datumTermina','termin.vremeTermina', 'usluga.nazivUsluga','pregled.idPregled')
              ->orderBy('termin.datumTermina', 'asc')
              ->orderBy('termin.vremeTermina', 'asc')
              ->get();
@@ -124,7 +124,8 @@ public function zakaziPregled(Request $request){
             'korisnik.prezime',
             'termin.datumTermina',
             'termin.vremeTermina',
-            'usluga.nazivUsluga'
+            'usluga.nazivUsluga',
+            'pregled.idPregled'
         )
         ->orderBy('termin.datumTermina', 'asc')
         ->orderBy('termin.vremeTermina', 'asc')
@@ -146,11 +147,13 @@ public function obavljeniPreglediPacijent($idPacijenta, $nazivUsluge)
         ->join('termin', 'termin.idTermin', '=', 'pregled.idTermin')
         ->join('korisnik', 'korisnik.idKorisnik', '=', 'pregled.idKorisnikDoktor')
         ->select(
+            'korisnik.idKorisnik',
             'korisnik.ime',
             'korisnik.prezime',
             'termin.datumTermina',
             'termin.vremeTermina',
-            'usluga.nazivUsluga'
+            'usluga.nazivUsluga',
+            'pregled.idPregled',
         )
         ->orderBy('termin.datumTermina', 'asc')
         ->orderBy('termin.vremeTermina', 'asc')
@@ -194,7 +197,8 @@ public function predstojeciPreglediPacijent($idPacijenta, $nazivUsluge)
             'korisnik.prezime',
             'termin.datumTermina',
             'termin.vremeTermina',
-            'usluga.nazivUsluga'
+            'usluga.nazivUsluga',
+            'pregled.idPregled'
         )
         ->orderBy('termin.datumTermina', 'asc')
         ->orderBy('termin.vremeTermina', 'asc')
@@ -207,8 +211,27 @@ public function predstojeciPreglediPacijent($idPacijenta, $nazivUsluge)
         'pregledi' => $pregledi,
     ];
 }
+public function otkaziPregled($idPregleda){
+    $pregled = Pregled::where('idPregled', $idPregleda)->first();
 
+    if ($pregled) {
+        $pregled->idKorisnikPacijent = null;
+        $pregled->idKorisnikDoktor = null;
+        $pregled->save();
 
     
+        $termin = Termin::where('termin.idTermin',$pregled->idTermin)->first();
+
+        if ($termin) {
+            $termin->zakazan = 0;
+            $termin->save();
+        }
+
+        return response()->json(['message' => 'Pregled je uspešno otkazan']);
+    }
+
+    // Ako pregled nije pronađen, vratite odgovarajuću poruku o grešci
+    return response()->json(['message' => 'Pregled nije pronađen'], 404);
+}
 
 }

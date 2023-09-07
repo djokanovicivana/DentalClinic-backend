@@ -7,6 +7,8 @@ use App\Http\Controllers\PregledController;
 use App\Http\Controllers\PacijentController;
 use App\Http\Controllers\TerminController;
 use App\Http\Controllers\DoktorController;
+use App\Http\Controllers\MedicinskaSestraController;
+use App\Http\Controllers\AdministratorController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +40,7 @@ Route::get('/sveUsluge',[UslugaController::class,'sveUsluge']);
 
 Route::get('/pacijenti/{idDoktor}',[PacijentController::class,'pacijentiDoktor']);
 Route::get('/pacijent/{idPacijent}',[PacijentController::class,'pacijentId']);
+Route::get('/sviPacijenti',[PacijentController::class,'sviPacijenti']);
 
 Route::get('/terminiZavrseni/{idPacijent}/{idDoktor}',[TerminController::class,'terminiPacijentZavrseni']);
 Route::get('/terminiBuduci/{idPacijent}/{idDoktor}',[TerminController::class,'terminiPacijentBuduci']);
@@ -55,3 +58,8 @@ Route::get('/predstojeciPreglediPacijent/{idPacijenta}/{nazivUsluga}',[PregledCo
 Route::get('/brojObavljeniDoktor/{idDoktora}',[PregledController::class,'brojObavljeniDoktor']);
 Route::get('/brojObavljenihPacijent/{idPacijenta}',[PregledController::class,'brojObavljenihPacijent']);
 Route::get('/doktor/{idDoktor}',[DoktorController::class,'show']);
+Route::get('/sviDoktori/{nazivGrana}',[DoktorController::class,'sviDoktori']);
+Route::get('/sveSestre/{nazivGrana}',[MedicinskaSestraController::class,'sveSestre']);
+Route::get('/adminId/{adminId}',[AdministratorController::class,'adminId']);
+Route::get('/sestraId/{sestraId}',[MedicinskaSestraController::class,'sestraId']);
+Route::delete('/brisiKorisnika/{uloga}/{id}', [KorisnikController::class, 'deleteKorisnik']);

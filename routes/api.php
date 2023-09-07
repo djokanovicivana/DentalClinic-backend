@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login',[AuthController::class,'login'])->name('auth.login');
 Route::post('/registracija',[KorisnikController::class,'create']);
 Route::patch('/noviPregled/{idKorisnikPacijent}/{idKorisnikDoktor}/{idTermin}',[PregledController::class,'noviPregled']);
-Route::patch('/izmenaPacijenta/{korisnickoIme}',[KorisnikController::class,'updatePacijent']);
+Route::patch('/izmenaKorisnika/{korisnickoIme}',[KorisnikController::class,'updateKorisnik']);
 Route::patch('/izmenaDoktora/{korisnickoIme}',[KorisnikController::class,'updateDoktor']);
 Route::post('/zakaziPregled',[PregledController::class,'zakaziPregled']);
 Route::post('/otkaziPregled/{idPregleda}',[PregledController::class,'otkaziPregled']);

@@ -37,4 +37,21 @@ class PacijentController extends Controller
 
         return response()->json($pacijenti);
     }
+     public function sviPacijenti(Request $request){
+        $searchTerm = $request->input('searchTerm');
+        $query = Pacijent::join('korisnik', 'pacijent.idKorisnik', '=', 'korisnik.idKorisnik')
+            ->select('pacijent.brojKartona', 'korisnik.*')
+            ->distinct();
+
+        if ($searchTerm) {
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('korisnik.ime', 'LIKE', '%' . $searchTerm . '%')
+                      ->orWhere('korisnik.prezime', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        $pacijenti = $query->get();
+
+        return response()->json($pacijenti);
+     }
 }

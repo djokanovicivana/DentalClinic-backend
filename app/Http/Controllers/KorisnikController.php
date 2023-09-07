@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Korisnik;
 use App\Models\Pacijent;
 use App\Models\Doktor;
+use App\Models\Administrator;
+use App\Models\MedicinskaSestra;
 use Illuminate\Support\Facades\Hash;
 
 use Illuminate\Http\Request;
@@ -53,7 +55,7 @@ class KorisnikController extends Controller
         'pacijent' => $pacijent,
     ], 201);
 }
-public function updatePacijent(Request $request, $korisnickoIme) {
+public function updateKorisnik(Request $request, $korisnickoIme) {
     $korisnik = Korisnik::where('korisnickoIme', $korisnickoIme)->first();
 
     if (!$korisnik) {
@@ -197,6 +199,35 @@ public function updateDoktor(Request $request, $korisnickoIme) {
 
     return response()->json(['success' => true]);
 }
+public function deleteKorisnik($uloga, $id) {
+    // Provera tipa korisnika na osnovu uloge
+    switch ($uloga) {
+        case 'Administrator':
+            $model = Administrator::find($id);
+            break;
+        case 'MedicinskaSestra':
+            $model = MedicinskaSestra::find($id);
+            break;
+        case 'Doktor':
+            $model = Doktor::find($id);
+            break;
+        case 'Pacijent':
+            $model = Pacijent::find($id);
+            break;
+        
+        default:
+            return response()->json(['message' => 'Nepoznata uloga korisnika'], 400);
+    }
+
+    if (!$model) {
+        return response()->json(['message' => 'Korisnik nije pronađen'], 404);
+    }
+
+    $model->delete();
+
+    return response()->json(['message' => 'Korisnik je uspešno obrisan'], 200);
+}
+
 
 
 
